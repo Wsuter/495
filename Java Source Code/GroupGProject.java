@@ -33,14 +33,17 @@ public class GroupGProject
 		File directory = new File(parent);
 		directory.mkdir();
 		String personList = parent + File.separator + "Names.txt";
+		String tempList = parent + File.separator + "temp.txt";
 		
 		
 		File nameList = new File(personList);
+		File temp = new File(tempList);
 		try
 		{
 			if(!nameList.exists())
 			{
 				nameList.createNewFile();
+				temp.createNewFile();
 			}
 		}
 		catch(IOException e){}

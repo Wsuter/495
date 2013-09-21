@@ -7,19 +7,24 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.io.*;
 import javax.swing.*;
 public class UserGui implements ActionListener
 {
 	ArrayList<String> nameList = new ArrayList<>();
-	JFrame main = new JFrame("Special Dates");
+	JFrame main = new JFrame("Special Dates and Wishlists");
 	JPanel buttonPanel = new JPanel();
 	JPanel displayPanel = new JPanel();
 	JPanel textPanel = new JPanel();
 	JPanel mainPanel = new JPanel();
-	JButton addPerson = new JButton("Add Person");
-	JButton addInfo = new JButton("Add Info");
-	JButton displayInfo = new JButton("Display Info");
+	JPanel endPanel = new JPanel();
+	JButton addPerson = new JButton("Add Person Profile");
+	JButton addInfo = new JButton("Add Event");
+	JButton displayInfo = new JButton("Display Event");
+	JButton eventEdit = new JButton("Edit/Delete Event");
+	JButton addWish = new JButton("Add to Wish List");
+	JButton displayWish = new JButton("Display Wishlist");
 	static String name = "No Name";
 	static JComboBox namesBox;
 	JTextArea display = new JTextArea();
@@ -32,10 +37,13 @@ public class UserGui implements ActionListener
 		addPerson.addActionListener(this);
 		addInfo.addActionListener(this);
 		displayInfo.addActionListener(this);
+		eventEdit.addActionListener(this);
+		addWish.addActionListener(this);
+		displayWish.addActionListener(this);
 		main.setSize(425, 400);
 		main.setLocationRelativeTo(null);
 		
-		buttonPanel.add(addPerson);
+		
 		
 		initializeNameList();
 		namesBox.setPreferredSize(new Dimension(100, 30));
@@ -43,9 +51,17 @@ public class UserGui implements ActionListener
 		displayPanel.add(displayInfo);
 		displayPanel.add(addInfo);
 		
+		buttonPanel.add(eventEdit);
+		buttonPanel.add(displayWish);
+		buttonPanel.add(addWish);
+		
+		
 		displayPane.setPreferredSize(new Dimension(400, 275));
 		textPanel.add(displayPane);
 		textPanel.setPreferredSize(new Dimension(400, 275));
+		
+		endPanel.setPreferredSize(new Dimension(400, 35));
+		endPanel.add(addPerson);
 		
 		BoxLayout box = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
 		mainPanel.setLayout(box);
@@ -53,6 +69,7 @@ public class UserGui implements ActionListener
 		mainPanel.add(displayPanel);
 		mainPanel.add(buttonPanel);
 		mainPanel.add(textPanel);
+		mainPanel.add(endPanel);
 		
 		main.add(mainPanel);
 		
@@ -90,12 +107,14 @@ public class UserGui implements ActionListener
 		}
 		else
 		{
+			Collections.sort(nameList);
 			namesBox = new JComboBox(nameList.toArray());
 		}
 	}
 	//This method takes the information for a specific persons special events and displays the events in a text area.
 	public void showEvents()
 	{
+		ArrayList<String> eventsArray = new ArrayList<String>();
 		name = (String) namesBox.getSelectedItem();
 		display.setText(null);
 		int count = 0;
@@ -109,7 +128,8 @@ public class UserGui implements ActionListener
 			BufferedReader bufReader = new BufferedReader(eventReader);
 			while((current = bufReader.readLine()) != null)
 			{
-				total += current + "\n";
+				eventsArray.add(current);
+				//total += current + "\n";
 				count++;
 			}
 			if(count == 0)
@@ -118,12 +138,53 @@ public class UserGui implements ActionListener
 			}
 			else
 			{
-				display.append(total);
+				Collections.sort(eventsArray);
+				for(int i = 0; i < eventsArray.size(); i++)
+				{
+					display.append(eventsArray.get(i) + "\n");
+				}
 			}
 			bufReader.close();
 		}
 		catch(IOException e){}
-		
+	}
+	
+	//This shows the wish lists
+	public void showWishes()
+	{
+		ArrayList<String> eventsArray = new ArrayList<String>();
+		name = (String) namesBox.getSelectedItem();
+		display.setText(null);
+		int count = 0;
+		String current = "";
+		String total = "WishList for: " + name + "\n";
+		display.append(total);
+		String fileName = "C:\\GroupGProject" + File.separator + name + File.separator + "wishList.txt";
+		try
+		{
+			nameList.clear();
+			FileReader eventReader = new FileReader(fileName);
+			BufferedReader bufReader = new BufferedReader(eventReader);
+			while((current = bufReader.readLine()) != null)
+			{
+				eventsArray.add(current);
+				count++;
+			}
+			if(count == 0)
+			{
+				display.append("No wishes for this person");
+			}
+			else
+			{
+				Collections.sort(eventsArray);
+				for(int i = 0; i < eventsArray.size(); i++)
+				{
+					display.append(eventsArray.get(i) + "\n");
+				}
+			}
+			bufReader.close();
+		}
+		catch(IOException e){}
 	}
 	//The actions performed
 	public void actionPerformed(ActionEvent a) 
@@ -163,6 +224,20 @@ public class UserGui implements ActionListener
 				AddEvent addEvent = new AddEvent(name);
 				addEvent.initiate();
 			}
+		}
+		if(a.getSource() == eventEdit)
+		{
+			editEvents change = new editEvents((String) namesBox.getSelectedItem());
+			change.initiate();
+		}
+		if(a.getSource() == addWish)
+		{
+			AddToWishList add = new AddToWishList((String) namesBox.getSelectedItem());
+			add.initiate();
+		}
+		if(a.getSource() == displayWish)
+		{
+			showWishes();
 		}
 		
 	}
